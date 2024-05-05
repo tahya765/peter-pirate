@@ -8,6 +8,16 @@ from os.path import isfile, join
 from pygame.locals import QUIT
 
 pygame.init()
+pygame.mixer.init()
+
+background_music = pygame.mixer.music.load('assets/audio/pirateb.wav')
+pygame.mixer.music.play(-1)  # Loop the music indefinitely
+coin_sounds = pygame.mixer.Sound('assets/audio/Sonic Ring - Sound Effect (HD).mp3')
+fire_hit_sound = pygame.mixer.Sound('assets/audio/Player Fire Hurt (Nr. 3  Minecraft Sound) - Sound Effect for editing.mp3')
+
+
+gameover_sound = pygame.mixer.Sound('assets/audio/gameover.wav')
+
 
 WIDTH, HEIGHT = 600, 400
 window = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -414,7 +424,7 @@ def play(window):
   last_trap_collision_time = {fire: 0, fire2: 0, fire3: 0}
   cooldown_duration = 3
 
-  #coin func
+  #coin function
   coins = []
   for block in floor:
     coin_x = block.rect.centerx - 16
@@ -448,8 +458,8 @@ def play(window):
   while not game_over:
     current_time = time.time()  # Get current time in seconds
 
-    # Win if score is 100
-    if score == 10:
+    # Win if score is 20
+    if score == 20:
       displayWin(window, winnerIMG)
       pygame.display.update()
       pygame.time.delay(4000)
@@ -487,6 +497,8 @@ def play(window):
           if lives <= 0:
             lives = 0
 
+          fire_hit_sound.play()
+
           break
 
     handle_move(player, objects, dt)
@@ -496,11 +508,14 @@ def play(window):
       if coin.check_collision_with_player(player.rect):
         coins.remove(coin)
         score += 1
+        coin_sounds.play()
 
     draw(window, background, player, objects, coins, offset_x)
 
     if game_over or lives <= 0:
       displayGameOver(window)  # Display game over screen
+      pygame.mixer.music.stop()
+      gameover_sound.play()
       pygame.display.update()
       pygame.time.delay(4000)
       break
